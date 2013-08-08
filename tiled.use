@@ -1,0 +1,4 @@
+Name: tiled
+Description: a reader for the tiled xml files (http://mapeditor.org)
+SourcePath: source
+Requires: mxml
