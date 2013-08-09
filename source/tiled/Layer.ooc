@@ -2,25 +2,23 @@ use mxml
 
 import structs/HashMap
 
-import tiled/[helpers, properties, data]
+import tiled/[Map, helpers, properties, data, Tile]
 
 Layer: class {
     name: String
     opacity: Float
     visible: Bool
 
-    data: Int*
+    data: TileId*
 
     properties: HashMap<String, String>
 
-    init: func ~fromNode (node: XmlNode, width, height: SizeT) {
+    init: func ~fromNode (map: Map, node: XmlNode) {
         name = node getAttr("name")
         opacity = getAttrDefault(node, "opacity", "1") toFloat()
         visible = getAttrDefault(node, "visible", "1") == "1"
         properties = HashMap<String, String> new()
-
-        // initialize our buffer
-        data = gc_malloc(32 * width * height) // always an array of 32bit unsigned integers
+        data = gc_malloc(map width * map height * TileId size)
 
         _loadStuff(node)
     }
