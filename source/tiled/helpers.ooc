@@ -23,11 +23,5 @@ getAttrDefault: func (node: XmlNode, name: String, def: String) -> String {
 Position: class {
     x, y: SizeT
 
-/*    new: static func (x, y: SizeT) -> This {
-        p: Position
-        p x = x
-        p y = y
-        p
-    }*/
     init: func(=x, =y) {}
 }
