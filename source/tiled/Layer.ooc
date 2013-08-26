@@ -5,6 +5,7 @@ import structs/HashMap
 import tiled/[Map, helpers, properties, data, Tile]
 
 Layer: class {
+    map: Map
     name: String
     opacity: Float
     visible: Bool
@@ -13,7 +14,7 @@ Layer: class {
 
     properties: HashMap<String, String>
 
-    init: func ~fromNode (map: Map, node: XmlNode) {
+    init: func ~fromNode (=map, node: XmlNode) {
         name = node getAttr("name")
         opacity = getAttrDefault(node, "opacity", "1") toFloat()
         visible = getAttrDefault(node, "visible", "1") == "1"
@@ -34,5 +35,17 @@ Layer: class {
                     "Ignoring <%s> for now ..." printfln(node getElement())
             }
         )
+    }
+
+    each: func (f: Func (Int, Int, Tile)) {
+        for (y in 0..map height) {
+            for (x in 0..map width) {
+                lid := y * map width + x
+                tile := map getTile(data[lid])
+                if (tile) {
+                    f(x, y, tile)
+                }
+            }
+        }
     }
 }

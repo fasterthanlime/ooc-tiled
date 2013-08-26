@@ -1,5 +1,5 @@
 import io/File
-import structs/ArrayList
+import structs/[HashMap, ArrayList]
 
 use mxml
 
@@ -14,15 +14,12 @@ Map: class {
     tileWidth, tileHeight: SizeT
 //    backgroundColor: ... // TODO
 
-    tilesets: ArrayList<Tileset>
-    layers: ArrayList<Layer>
+    tilesets := HashMap<String, Tileset> new()
+    layers := HashMap<String, Layer> new()
 
     init: func ~withFile (file: File) {
         tree = XmlNode new()
         tree loadString(file read(), MXML_OPAQUE_CALLBACK)
-
-        tilesets = ArrayList<Tileset> new()
-        layers = ArrayList<Layer> new()
 
         _loadMap(tree findElement(tree, "map"))
     }
@@ -43,10 +40,10 @@ Map: class {
             match(node getElement()) {
                 case "tileset" =>
                     ts := Tileset new(node)
-                    tilesets add(ts)
+                    tilesets put(ts name, ts)
                 case "layer" =>
                     layer := Layer new(this, node)
-                    layers add(layer)
+                    layers put(layer name, layer)
                 case =>
                     "Ignoring <%s> for now ..." printfln(node getElement())
             }
@@ -63,6 +60,7 @@ Map: class {
         cid := cleanTileId(did)
         if(cid == 0) return null
         best: Tileset = null
+
         iter := tilesets iterator()
         while(iter hasNext?()) {
             ts := iter next()
@@ -76,8 +74,9 @@ Map: class {
 
     getTile: func (did: TileId) -> Tile {
         tileset := getTileset(did)
-        if(tileset == null)
-            Exception new("No tileset knows this tile: %d" format(did)) throw()
+        if(tileset == null) {
+            return null
+        }
         tileset getTile(did)
     }
 }

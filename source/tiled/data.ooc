@@ -6,15 +6,18 @@ readCSV: func (layer: Layer, data: String) {
     current := Buffer new()
     iter := data iterator()
     i := 0
-    while(iter hasNext?()) {
+    while (true) {
         chr := iter next()
-        if(chr == ',') {
+        if (chr == ',' || !iter hasNext?()) {
             // next value!
             value := current toString() toInt()
             layer data[i] = value
             i += 1
+
+            if (!iter hasNext?()) break
+
             current = Buffer new() // TODO?
-        } else if(chr whitespace?()) {
+        } else if (chr whitespace?()) {
             // ignore!
         } else {
             // must be a number
