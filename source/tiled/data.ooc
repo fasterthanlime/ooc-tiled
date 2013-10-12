@@ -24,7 +24,6 @@ readCSV: func (layer: Layer, data: String) {
             current append(chr)
         }
     }
-    "Read %d tiles." printfln(i+1)
 }
 
 readData: func (layer: Layer, node: XmlNode) {
