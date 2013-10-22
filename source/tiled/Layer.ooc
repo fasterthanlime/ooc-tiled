@@ -48,4 +48,15 @@ Layer: class {
             }
         }
     }
+
+    first: func -> Tile {
+        for (y in 0..map height) {
+            for (x in 0..map width) {
+                lid := y * map width + x
+                tile := map getTile(data[lid])
+                if (tile) return tile
+            }
+        }
+        null
+    }
 }
