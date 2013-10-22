@@ -3,7 +3,7 @@ import structs/[HashMap, ArrayList]
 
 use mxml
 
-import tiled/[helpers, TileSet, Layer, Tile]
+import tiled/[helpers, TileSet, Layer, Tile, ObjectGroup]
 
 /**
  * A Tiled map
@@ -20,6 +20,7 @@ Map: class {
 
     tileSets := HashMap<String, TileSet> new()
     layers := HashMap<String, Layer> new()
+    objectGroups := HashMap<String, ObjectGroup> new()
 
     init: func ~withFile (file: File) {
         tree = XmlNode new()
@@ -83,6 +84,9 @@ Map: class {
                 case "layer" =>
                     layer := Layer new(this, node)
                     layers put(layer name, layer)
+                case "objectgroup" =>
+                    objectGroup := ObjectGroup new(this, node)
+                    objectGroups put(objectGroup name, objectGroup)
                 case =>
                     "Ignoring <%s> for now ..." printfln(node getElement())
             }

@@ -1,31 +1,73 @@
-use mxml
 
+// sdk
 import structs/HashMap
 
+// third-party
+use mxml
+
+// ours
 import tiled/[Map, helpers, properties, data, Tile]
 
 /**
  * A tile layer
  */
 Layer: class {
+
+    // common properties
     map: Map
     name: String
     opacity: Float
     visible: Bool
 
+    // custom properties
+    properties := HashMap<String, String> new()
+
+    // all tiles
     data: TileId*
 
-    properties: HashMap<String, String>
-
+    /**
+     * Create a new layer - called internally
+     */
     init: func ~fromNode (=map, node: XmlNode) {
         name = node getAttr("name")
         opacity = getAttrDefault(node, "opacity", "1") toFloat()
         visible = getAttrDefault(node, "visible", "1") == "1"
-        properties = HashMap<String, String> new()
         data = gc_malloc(map width * map height * TileId size)
 
         _loadStuff(node)
     }
+
+    /**
+     * Iterate through each tile, call f with column, row, and
+     * a reference to the tile.
+     */
+    each: func (f: Func (Int, Int, Tile)) {
+        for (y in 0..map height) {
+            for (x in 0..map width) {
+                lid := y * map width + x
+                tile := map getTile(data[lid])
+                if (tile) {
+                    f(x, y, tile)
+                }
+            }
+        }
+    }
+
+    /**
+     * @return the first tile in this layer, or null if it's empty
+     */
+    first: func -> Tile {
+        for (y in 0..map height) {
+            for (x in 0..map width) {
+                lid := y * map width + x
+                tile := map getTile(data[lid])
+                if (tile) return tile
+            }
+        }
+        null
+    }
+
+    // private stuff
 
     _loadStuff: func (root: XmlNode) {
         eachChildElem(root, |node|
@@ -40,26 +82,4 @@ Layer: class {
         )
     }
 
-    each: func (f: Func (Int, Int, Tile)) {
-        for (y in 0..map height) {
-            for (x in 0..map width) {
-                lid := y * map width + x
-                tile := map getTile(data[lid])
-                if (tile) {
-                    f(x, y, tile)
-                }
-            }
-        }
-    }
-
-    first: func -> Tile {
-        for (y in 0..map height) {
-            for (x in 0..map width) {
-                lid := y * map width + x
-                tile := map getTile(data[lid])
-                if (tile) return tile
-            }
-        }
-        null
-    }
 }
