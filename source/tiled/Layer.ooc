@@ -4,6 +4,9 @@ import structs/HashMap
 
 import tiled/[Map, helpers, properties, data, Tile]
 
+/**
+ * A tile layer
+ */
 Layer: class {
     map: Map
     name: String

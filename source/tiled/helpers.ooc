@@ -25,3 +25,4 @@ Position: class {
 
     init: func(=x, =y) {}
 }
+

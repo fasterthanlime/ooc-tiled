@@ -2,7 +2,7 @@ use mxml
 
 import structs/HashMap
 
-import tiled/[helpers, properties, Tileset]
+import tiled/[helpers, properties, TileSet]
 
 TileId: cover from UInt // TODO: should be UInt32, but that annoys rock
 
@@ -19,15 +19,15 @@ cleanTileId: func (did: TileId) -> TileId {
 
 Tile: class {
     id: TileId
-    tileset: Tileset
+    tileSet: TileSet
     properties: HashMap<String, String>
 
-    init: func ~fromId (=tileset, =id) {
+    init: func ~fromId (=tileSet, =id) {
         properties = HashMap<String, String> new()
     }
 
-    init: func ~fromNode (tileset: Tileset, node: XmlNode) {
-        init(tileset, node getAttr("id") toInt())
+    init: func ~fromNode (tileSet: TileSet, node: XmlNode) {
+        init(tileSet, node getAttr("id") toInt())
         _loadStuff(node)
     }
 
@@ -41,7 +41,7 @@ Tile: class {
     }
 
     getPosition: func -> Position {
-        tileset getTilePosition(id)
+        tileSet getTilePosition(id)
     }
 }
 

@@ -4,7 +4,7 @@ import structs/HashMap
 
 import tiled/[Tile, helpers, Image]
 
-Tileset: class {
+TileSet: class {
     name: String
     firstGid, tileWidth, tileHeight: SizeT
     spacing, margin: SizeT
@@ -33,7 +33,7 @@ Tileset: class {
         }
 
         if(node getAttr("source") != null) { // TODO
-            Exception new("Can't read external tilesets yet!") throw()
+            Exception new("Can't read external tileSets yet!") throw()
         }
 
         specialTiles = HashMap<TileId, Tile> new()
@@ -45,7 +45,7 @@ Tileset: class {
             match(node getElement()) {
                 case "image" =>
                     if(image != null)
-                        Exception new("Only one image per tileset supported yet!") throw()
+                        Exception new("Only one image per tileSet supported yet!") throw()
                     image = Image new(node)
                 case "tile" =>
                     // speeeecial tiles!
@@ -72,14 +72,15 @@ Tileset: class {
         specialTiles get(lid)
     }
 
-    /** return (row, column) */
+    /** @return (row, column) */
     getTileRowColumn: func (lid: TileId) -> (SizeT, SizeT) {
         (lid / tilesPerRow, lid % tilesPerRow)
     }
 
-    /** return (x, y) */
+    /** @return (x, y) */
     getTilePosition: func (lid: TileId) -> Position {
         (row, column) := getTileRowColumn(lid)
         Position new(column * tileWidth, row * tileHeight) // TODO: spacing etc
     }
 }
+

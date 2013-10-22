@@ -1,7 +1,11 @@
+
 use mxml
 
 import tiled/[helpers]
 
+/**
+ * An image used in a Tiled map
+ */
 Image: class {
     format, source, trans: String
     width, height: SSizeT // for -1 as a "no width/height set" value
@@ -14,3 +18,4 @@ Image: class {
         height = getAttrDefault(node, "height", "-1") toInt()
     }
 }
+

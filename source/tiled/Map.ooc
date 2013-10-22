@@ -3,8 +3,11 @@ import structs/[HashMap, ArrayList]
 
 use mxml
 
-import tiled/[helpers, Tileset, Layer, Tile]
+import tiled/[helpers, TileSet, Layer, Tile]
 
+/**
+ * A Tiled map
+ */
 Map: class {
     tree: XmlNode
 
@@ -12,9 +15,10 @@ Map: class {
     orientation: String
     width, height: SizeT
     tileWidth, tileHeight: SizeT
-//    backgroundColor: ... // TODO
 
-    tilesets := HashMap<String, Tileset> new()
+    // TODO: background color, etc.
+
+    tileSets := HashMap<String, TileSet> new()
     layers := HashMap<String, Layer> new()
 
     init: func ~withFile (file: File) {
@@ -23,6 +27,41 @@ Map: class {
 
         _loadMap(tree findElement(tree, "map"))
     }
+
+    cleanup: func {
+        tree delete()
+    }
+
+    /**
+     * Get the tileSet that contains our tile. *did* will be cleaned (it's a "dirty id"!)
+     * from flipping data.
+     * @return null if no tileSet could be found or if the tile id is 0.
+     */
+    getTileSet: func (did: TileId) -> TileSet {
+        cid := cleanTileId(did)
+        if(cid == 0) return null
+        best: TileSet = null
+
+        iter := tileSets iterator()
+        while(iter hasNext?()) {
+            ts := iter next()
+            if(ts firstGid > cid) {
+                break
+            }
+            best = ts
+        }
+        best
+    }
+
+    getTile: func (did: TileId) -> Tile {
+        tileSet := getTileSet(did)
+        if(tileSet == null) {
+            return null
+        }
+        tileSet getTile(did)
+    }
+
+    // private stuff
 
     _loadMap: func (node: XmlNode) {
         version = node getAttr("version")
@@ -39,8 +78,8 @@ Map: class {
         eachChildElem(root, |node|
             match(node getElement()) {
                 case "tileset" =>
-                    ts := Tileset new(node)
-                    tilesets put(ts name, ts)
+                    ts := TileSet new(node)
+                    tileSets put(ts name, ts)
                 case "layer" =>
                     layer := Layer new(this, node)
                     layers put(layer name, layer)
@@ -48,35 +87,5 @@ Map: class {
                     "Ignoring <%s> for now ..." printfln(node getElement())
             }
         )
-    }
-
-    cleanup: func {
-        tree delete()
-    }
-
-    /** get the tileset that contains our tile. *did* will be cleaned (it's a "dirty id"!)
-        from flipping data. Returns null if no tileset could be found or if the tile id is 0. */
-    getTileset: func (did: TileId) -> Tileset {
-        cid := cleanTileId(did)
-        if(cid == 0) return null
-        best: Tileset = null
-
-        iter := tilesets iterator()
-        while(iter hasNext?()) {
-            ts := iter next()
-            if(ts firstGid > cid) {
-                break
-            }
-            best = ts
-        }
-        best
-    }
-
-    getTile: func (did: TileId) -> Tile {
-        tileset := getTileset(did)
-        if(tileset == null) {
-            return null
-        }
-        tileset getTile(did)
     }
 }
