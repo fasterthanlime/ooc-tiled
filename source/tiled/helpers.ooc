@@ -20,9 +20,20 @@ getAttrDefault: func (node: XmlNode, name: String, def: String) -> String {
         return value;
 }
 
+/**
+ * Simple 2D coordinates used throughout the Tiled AST
+ */
 Position: class {
+
     x, y: SizeT
 
-    init: func(=x, =y) {}
+    init: func(=x, =y)
+
+    toString: func -> String {
+        "(%d, %d)" format(x, y)
+    }
+    
+    _: String { get { toString() } }
+
 }
 
