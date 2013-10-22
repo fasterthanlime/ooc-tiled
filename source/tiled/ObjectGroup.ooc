@@ -12,12 +12,9 @@ import tiled/[Map, helpers, properties]
 /**
  * An object group
  */
-ObjectGroup: class {
-
-    map: Map
+ObjectGroup: class extends MapLayer {
 
     // common properties
-    name: String
     width: Int
     height: Int
 
@@ -28,8 +25,8 @@ ObjectGroup: class {
     /**
      * Create a new object group - called internally
      */
-    init: func ~fromNode (=map, node: XmlNode) {
-        name = node getAttr("name")
+    init: func (.map, node: XmlNode) {
+        super(map, node)
         width = node getAttr("width") toInt()
         height = node getAttr("height") toInt()
 

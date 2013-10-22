@@ -1,14 +1,19 @@
+
+// sdk
 import io/File
 import structs/[HashMap, ArrayList]
 
+// third-party
 use mxml
 
+// ours
 import tiled/[helpers, TileSet, Layer, Tile, ObjectGroup]
 
 /**
  * A Tiled map
  */
 Map: class {
+
     tree: XmlNode
 
     version: String
@@ -18,11 +23,10 @@ Map: class {
 
     // TODO: background color, etc.
 
-    tileSets := HashMap<String, TileSet> new()
-    layers := HashMap<String, Layer> new()
-    objectGroups := HashMap<String, ObjectGroup> new()
+    tileSets := ArrayList<TileSet> new()
+    mapLayers := ArrayList<MapLayer> new()
 
-    init: func ~withFile (file: File) {
+    init: func (file: File) {
         tree = XmlNode new()
         tree loadString(file read(), MXML_OPAQUE_CALLBACK)
 
@@ -34,32 +38,34 @@ Map: class {
     }
 
     /**
-     * Get the tileSet that contains our tile. *did* will be cleaned (it's a "dirty id"!)
-     * from flipping data.
+     * Get the tileSet that contains our tile. *did* will be cleaned (it's a
+     * "dirty id"!) from flipping data.
      * @return null if no tileSet could be found or if the tile id is 0.
      */
     getTileSet: func (did: TileId) -> TileSet {
         cid := cleanTileId(did)
         if(cid == 0) return null
+
         best: TileSet = null
 
-        iter := tileSets iterator()
-        while(iter hasNext?()) {
-            ts := iter next()
-            if(ts firstGid > cid) {
-                break
+        for (tileSet in tileSets) {
+            if(tileSet firstGid > cid) {
+               break
             }
-            best = ts
+            best = tileSet
         }
         best
     }
 
+    /**
+     * Given a tile id, return the associated Tile object
+     */
     getTile: func (did: TileId) -> Tile {
         tileSet := getTileSet(did)
-        if(tileSet == null) {
-            return null
+        if(tileSet) {
+            return tileSet getTile(did)
         }
-        tileSet getTile(did)
+        null
     }
 
     // private stuff
@@ -79,17 +85,32 @@ Map: class {
         eachChildElem(root, |node|
             match(node getElement()) {
                 case "tileset" =>
-                    ts := TileSet new(node)
-                    tileSets put(ts name, ts)
+                    tileSet := TileSet new(node)
+                    tileSets add(tileSet)
                 case "layer" =>
                     layer := Layer new(this, node)
-                    layers put(layer name, layer)
+                    mapLayers add(layer)
                 case "objectgroup" =>
                     objectGroup := ObjectGroup new(this, node)
-                    objectGroups put(objectGroup name, objectGroup)
+                    mapLayers add(objectGroup)
                 case =>
                     "Ignoring <%s> for now ..." printfln(node getElement())
             }
         )
+
+        // order tileSets by gid
     }
 }
+
+MapLayer: abstract class {
+
+    // common properties
+    map: Map
+    name: String
+
+    init: func (=map, node: XmlNode) {
+        name = node getAttr("name")
+    }
+
+}
+

@@ -11,11 +11,9 @@ import tiled/[Map, helpers, properties, data, Tile]
 /**
  * A tile layer
  */
-Layer: class {
+Layer: class extends MapLayer {
 
     // common properties
-    map: Map
-    name: String
     opacity: Float
     visible: Bool
 
@@ -28,8 +26,8 @@ Layer: class {
     /**
      * Create a new layer - called internally
      */
-    init: func ~fromNode (=map, node: XmlNode) {
-        name = node getAttr("name")
+    init: func (.map, node: XmlNode) {
+        super(map, node)
         opacity = getAttrDefault(node, "opacity", "1") toFloat()
         visible = getAttrDefault(node, "visible", "1") == "1"
         data = gc_malloc(map width * map height * TileId size)
