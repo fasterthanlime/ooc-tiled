@@ -21,6 +21,10 @@ TileSet: class {
     specialTiles: HashMap<SizeT, Tile>
 
     init: func ~fromNode (node: XmlNode) {
+        if(node getAttr("source") != null) { // TODO
+            Exception new("Can't read external tileSets yet!") throw()
+        }
+
         name = node getAttr("name")
         firstGid = node getAttr("firstgid") toInt()
         tileWidth = node getAttr("tilewidth") toInt()
@@ -30,10 +34,6 @@ TileSet: class {
 
         if(spacing != 0 || margin != 0) {
             Exception new("spacing and margin not supported yet") throw()
-        }
-
-        if(node getAttr("source") != null) { // TODO
-            Exception new("Can't read external tileSets yet!") throw()
         }
 
         specialTiles = HashMap<TileId, Tile> new()
@@ -66,6 +66,7 @@ TileSet: class {
     }
 
     getLocalTile: func (lid: TileId) -> Tile {
+        // lazily create tile if it isn't 'special'
         if(!specialTiles contains?(lid)) {
             specialTiles put(lid, Tile new(this, lid))
         }

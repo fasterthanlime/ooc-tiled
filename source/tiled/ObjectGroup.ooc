@@ -64,6 +64,7 @@ TObject: class {
     x, y: Int
     width, height: Int
     shape: TShape
+    gid: Int // tile global id, -1 if none
 
     // custom properties
     properties := HashMap<String, String> new()
@@ -75,6 +76,7 @@ TObject: class {
         y = getAttrDefault(node, "y", "0") toInt()
         width = getAttrDefault(node, "width", "0") toInt()
         height = getAttrDefault(node, "height", "0") toInt()
+        gid = getAttrDefault(node, "gid", "-1") toInt()
 
         _loadStuff(node)
     }
