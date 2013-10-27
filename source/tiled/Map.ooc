@@ -14,8 +14,6 @@ import tiled/[helpers, TileSet, Layer, Tile, ObjectGroup]
  */
 Map: class {
 
-    tree: XmlNode
-
     version: String
     orientation: String
     width, height: SizeT
@@ -26,14 +24,13 @@ Map: class {
     tileSets := ArrayList<TileSet> new()
     mapLayers := ArrayList<MapLayer> new()
 
-    init: func (file: File) {
-        tree = XmlNode new()
-        tree loadString(file read(), MXML_OPAQUE_CALLBACK)
+    mapFile: File
+
+    init: func (=mapFile) {
+        tree := XmlNode new()
+        tree loadString(mapFile read(), MXML_OPAQUE_CALLBACK)
 
         _loadMap(tree findElement(tree, "map"))
-    }
-
-    cleanup: func {
         tree delete()
     }
 
@@ -68,6 +65,16 @@ Map: class {
         null
     }
 
+    /**
+     * Given a path relative to the map's path,
+     * will return a File corresponding to the actual
+     * file.
+     */
+    relativePath: func (relativePath: String) -> String {
+        f := File new(mapFile, "..", relativePath)
+        f getReducedPath() // resolves '..' and stuff
+    }
+
     // private stuff
 
     _loadMap: func (node: XmlNode) {
@@ -85,7 +92,7 @@ Map: class {
         eachChildElem(root, |node|
             match(node getElement()) {
                 case "tileset" =>
-                    tileSet := TileSet new(node)
+                    tileSet := TileSet new(this, node)
                     tileSets add(tileSet)
                 case "layer" =>
                     layer := Layer new(this, node)

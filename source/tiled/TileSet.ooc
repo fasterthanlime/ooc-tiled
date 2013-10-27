@@ -1,15 +1,22 @@
+
+// third-party
 use mxml
 
-import structs/HashMap
+// sdk
+import structs/HashMap, io/File
 
-import tiled/[Tile, helpers, Image]
+// ours
+import tiled/[Map, Tile, helpers, Image]
 
 TileSet: class {
+
+    map: Map
+
+    // common properties
     name: String
     firstGid, tileWidth, tileHeight: SizeT
     spacing, margin: SizeT
-
-    image: Image // TODO: support for one image for now
+    image: Image // TODO: implement multiple image support?
 
     tilesPerRow: SizeT {
         get {
@@ -20,13 +27,19 @@ TileSet: class {
     // special snowflake tiles, with properties or something
     specialTiles: HashMap<SizeT, Tile>
 
-    init: func ~fromNode (node: XmlNode) {
-        if(node getAttr("source") != null) { // TODO
-            Exception new("Can't read external tileSets yet!") throw()
+    init: func ~fromNode (=map, node: XmlNode) {
+        firstGid = node getAttr("firstgid") toInt()
+        source := node getAttr("source")
+
+        tree: XmlNode
+        if(source) {
+            // read external tileset
+            tree = XmlNode new()
+            tree loadString(File new(map relativePath(source)) read(), MXML_OPAQUE_CALLBACK)
+            node = tree findElement(tree, "tileset")
         }
 
         name = node getAttr("name")
-        firstGid = node getAttr("firstgid") toInt()
         tileWidth = node getAttr("tilewidth") toInt()
         tileHeight = node getAttr("tileheight") toInt()
         spacing = getAttrDefault(node, "spacing", "0") toInt()
@@ -38,6 +51,11 @@ TileSet: class {
 
         specialTiles = HashMap<TileId, Tile> new()
         _loadTiles(node)
+
+        if (source) {
+            // clean up
+            tree delete()
+        }
     }
 
     _loadTiles: func (root: XmlNode) {
