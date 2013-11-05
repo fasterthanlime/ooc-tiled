@@ -3,7 +3,8 @@
 use mxml
 
 // sdk
-import structs/HashMap, io/File
+import structs/[ArrayList, HashMap]
+import io/File
 
 // ours
 import tiled/[Map, Tile, helpers, Image]
@@ -17,6 +18,7 @@ TileSet: class {
     firstGid, tileWidth, tileHeight: SizeT
     spacing, margin: SizeT
     image: Image // TODO: implement multiple image support?
+    terrainTypes := ArrayList<TerrainType> new()
 
     tilesPerRow: SizeT {
         get {
@@ -50,7 +52,7 @@ TileSet: class {
         }
 
         specialTiles = HashMap<TileId, Tile> new()
-        _loadTiles(node)
+        _loadAll(node)
 
         if (source) {
             // clean up
@@ -58,17 +60,31 @@ TileSet: class {
         }
     }
 
-    _loadTiles: func (root: XmlNode) {
+    _loadAll: func (root: XmlNode) {
         eachChildElem(root, |node|
             match(node getElement()) {
                 case "image" =>
-                    if(image != null)
-                        Exception new("Only one image per tileSet supported yet!") throw()
+                    if(image != null) {
+                        raise("Multiple images per tileSet aren't supported yet.")
+                    }
                     image = Image new(node)
+                case "terraintypes" =>
+                    _loadTerrainTypes(node)
                 case "tile" =>
-                    // speeeecial tiles!
+                    // Tiles that have attributes and/or terrain info have
+                    // their own node.
                     tile := Tile new(this, node)
                     specialTiles put(tile id, tile)
+            }
+        )
+    }
+
+    _loadTerrainTypes: func (root: XmlNode) {
+        eachChildElem(root, |node|
+            match (node getElement()) {
+                case "terrain" =>
+                    terrainType := TerrainType new(terrainTypes size, node)
+                    terrainTypes add(terrainType)
             }
         )
     }
@@ -100,6 +116,32 @@ TileSet: class {
     getTilePosition: func (lid: TileId) -> Position {
         (row, column) := getTileRowColumn(lid)
         Position new(column * tileWidth, row * tileHeight) // TODO: spacing etc
+    }
+
+    /**
+     * @return first terrain type that has name `name`, if found
+     */
+    findTerrainType: func (name: String) -> TerrainType {
+        for (tt in terrainTypes) {
+            if (tt name == name) return tt
+        }
+
+        null
+    }
+}
+
+TerrainType: class {
+    index: Int
+    name: String
+    tile: Int
+
+    init: func (=index, root: XmlNode) {
+        _loadStuff(root)
+    }
+
+    _loadStuff: func (root: XmlNode) {
+        name = root getAttr("name")
+        tile = root getAttr("tile") toInt()
     }
 }
 

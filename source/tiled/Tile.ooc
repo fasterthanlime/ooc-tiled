@@ -67,5 +67,14 @@ Tile: class {
     getPosition: func -> Position {
         tileSet getTilePosition(id)
     }
+
+    allTerrain?: func (index: Int) -> Bool {
+        (
+            terrainTopRight    == index && \
+            terrainTopLeft     == index && \
+            terrainBottomLeft  == index && \
+            terrainBottomRight == index
+        )
+    }
 }
 
