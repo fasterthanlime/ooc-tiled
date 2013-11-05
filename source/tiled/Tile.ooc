@@ -1,7 +1,12 @@
+
+// third
 use mxml
 
-import structs/HashMap
+// sdk
+import structs/[List, HashMap]
+import text/StringTokenizer
 
+// ours
 import tiled/[helpers, properties, TileSet]
 
 TileId: cover from UInt // TODO: should be UInt32, but that annoys rock
@@ -22,6 +27,11 @@ Tile: class {
     tileSet: TileSet
     properties: HashMap<String, String>
 
+    terrainTopRight    := -1
+    terrainTopLeft     := -1
+    terrainBottomLeft  := -1
+    terrainBottomRight := -1
+
     init: func ~fromId (=tileSet, =id) {
         properties = HashMap<String, String> new()
     }
@@ -38,6 +48,20 @@ Tile: class {
                     readProperties(node, properties)
             }
         )
+
+        _loadTerrainInfo(root)
+    }
+
+    _loadTerrainInfo: func (root: XmlNode) {
+        terrainInfo := getAttrDefault(root, "terrain", "-1,-1,-1,-1")
+
+        tokens := terrainInfo split(",")
+
+        if (tokens size < 4) raise("Invalid terrain format, needs 4 numbers")
+        terrainTopRight    = tokens[0] toInt()
+        terrainTopLeft     = tokens[1] toInt()
+        terrainBottomLeft  = tokens[2] toInt()
+        terrainBottomRight = tokens[3] toInt()
     }
 
     getPosition: func -> Position {
