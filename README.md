@@ -9,7 +9,8 @@ Depends on [ooc-mxml][xml].
 ### Authors
 
   * Friedrich Weber
-  
+  * Amos Wenger
+
 ### Links
 
   * <http://www.mapeditor.org/>
