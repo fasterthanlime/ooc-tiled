@@ -16,6 +16,7 @@ Layer: class extends MapLayer {
     // common properties
     opacity: Float
     visible: Bool
+    width, height: Int
 
     // custom properties
     properties := HashMap<String, String> new()
@@ -30,6 +31,8 @@ Layer: class extends MapLayer {
         super(map, node)
         opacity = getAttrDefault(node, "opacity", "1") toFloat()
         visible = getAttrDefault(node, "visible", "1") == "1"
+        width  = getAttrDefault(node, "width", "0") toInt()
+        height = getAttrDefault(node, "height", "0") toInt()
         data = gc_malloc(map width * map height * TileId size)
 
         _loadStuff(node)
