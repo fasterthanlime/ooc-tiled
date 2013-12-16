@@ -26,6 +26,12 @@ TileSet: class {
         }
     }
 
+    tilesPerColumn: SizeT {
+        get {
+            image height / tileHeight
+        }
+    }
+
     // special snowflake tiles, with properties or something
     specialTiles: HashMap<SizeT, Tile>
 
@@ -41,6 +47,26 @@ TileSet: class {
             node = tree findElement(tree, "tileset")
         }
 
+        _load(node)
+
+        if (source) {
+            // clean up
+            tree delete()
+        }
+    }
+
+    init: func ~fromFile (file: File) {
+        firstGid = 0
+
+        tree := XmlNode new()
+        source := file read()
+        tree loadString(source, MXML_OPAQUE_CALLBACK)
+        node := tree findElement(tree, "tileset")
+        _load(node)
+        tree delete()
+    }
+
+    _load: func (node: XmlNode) {
         name = node getAttr("name")
         tileWidth = node getAttr("tilewidth") toInt()
         tileHeight = node getAttr("tileheight") toInt()
@@ -53,11 +79,6 @@ TileSet: class {
 
         specialTiles = HashMap<TileId, Tile> new()
         _loadAll(node)
-
-        if (source) {
-            // clean up
-            tree delete()
-        }
     }
 
     _loadAll: func (root: XmlNode) {
