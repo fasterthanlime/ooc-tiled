@@ -7,7 +7,7 @@ import structs/[HashMap, ArrayList]
 use mxml
 
 // ours
-import tiled/[helpers, TileSet, Layer, Tile, ObjectGroup]
+import tiled/[helpers, properties, TileSet, Layer, Tile, ObjectGroup]
 
 /**
  * A Tiled map
@@ -18,6 +18,9 @@ Map: class {
     orientation: String
     width, height: SizeT
     tileWidth, tileHeight: SizeT
+
+    // custom properties
+    properties := HashMap<String, String> new()
 
     // TODO: background color, etc.
 
@@ -100,6 +103,8 @@ Map: class {
                 case "objectgroup" =>
                     objectGroup := ObjectGroup new(this, node)
                     mapLayers add(objectGroup)
+                case "properties" =>
+                    readProperties(node, properties)
                 case =>
                     "Ignoring <%s> for now ..." printfln(node getElement())
             }
