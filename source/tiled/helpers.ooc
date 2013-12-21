@@ -25,7 +25,7 @@ getAttrDefault: func (node: XmlNode, name: String, def: String) -> String {
  */
 Position: class {
 
-    x, y: SizeT
+    x, y: Int
 
     init: func(=x, =y)
 
