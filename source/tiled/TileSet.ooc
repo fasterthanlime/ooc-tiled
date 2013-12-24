@@ -11,6 +11,8 @@ import tiled/[Map, Tile, helpers, Image]
 
 TileSet: class {
 
+    autoExterns := static HashMap<String, String> new()
+
     map: Map
 
     // common properties
@@ -38,6 +40,16 @@ TileSet: class {
     init: func ~fromNode (=map, node: XmlNode) {
         firstGid = node getAttr("firstgid") toInt()
         source := node getAttr("source")
+
+        if (!source) {
+            image := _findImage(node)
+            if (image) {
+                ext := autoExterns get(image source)
+                if (ext) {
+                    source = ext
+                }
+            }
+        }
 
         tree: XmlNode
         if(source) {
@@ -79,6 +91,19 @@ TileSet: class {
 
         specialTiles = HashMap<TileId, Tile> new()
         _loadAll(node)
+    }
+
+    _findImage: func (root: XmlNode) -> Image {
+        result: Image
+
+        eachChildElem(root, |node|
+            match (node getElement()) {
+                case "image" =>
+                    result = Image new(node)
+            }
+        )
+
+        result
     }
 
     _loadAll: func (root: XmlNode) {
