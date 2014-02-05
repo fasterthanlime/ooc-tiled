@@ -4,7 +4,7 @@ use mxml
 eachChildElem: func (root: XmlNode, callback: Func (XmlNode)) {
     node := root getFirstChild()
     while(node != null) {
-        if(node getType() == XmlNodeType ELEMENT) {
+        if(node getType() == XmlNodeType element) {
             callback(node)
         }
         node = node getNextSibling()
