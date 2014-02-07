@@ -22,6 +22,9 @@ TileSet: class {
     image: Image // TODO: implement multiple image support?
     terrainTypes := ArrayList<TerrainType> new()
 
+    // non-nil if external
+    source: String
+
     tilesPerRow: SizeT {
         get {
             image width / tileWidth
@@ -39,7 +42,7 @@ TileSet: class {
 
     init: func ~fromNode (=map, node: XmlNode) {
         firstGid = node getAttr("firstgid") toInt()
-        source := node getAttr("source")
+        source = node getAttr("source")
 
         if (!source) {
             image := _findImage(node)
@@ -173,6 +176,10 @@ TileSet: class {
         }
 
         null
+    }
+
+    getSource: func -> String {
+        source ? source : "<unknown>"
     }
 }
 
