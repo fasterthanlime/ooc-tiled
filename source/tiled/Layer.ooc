@@ -83,7 +83,7 @@ Layer: class extends MapLayer {
         )
     }
 
-    getTileID: func (index: Int) -> TileID {
+    getTileID: func (index: Int) -> TileId {
         data[index]
     }
 
